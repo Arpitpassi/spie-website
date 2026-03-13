@@ -7,7 +7,7 @@ import { Plus, Users, Calendar, Clock, Settings, BookOpen, Trash2 } from "lucide
 
 export function AdminClient({ initialMembers, initialEvents, initialPastEvents }: any) {
   const router = useRouter()
-  const[activeTab, setActiveTab] = useState("events")
+  const [activeTab, setActiveTab] = useState("events")
   const [isAddingEvent, setIsAddingEvent] = useState(false)
   const [isAddingPastEvent, setIsAddingPastEvent] = useState(false)
   
@@ -52,13 +52,15 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
   const handleDeleteEvent = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this event?")) return
     try {
-      // Optimistically remove from UI
+      // Optimistically remove from UI, but save old state to revert if failed
+      const previousEvents = [...localEvents]
       setLocalEvents((prev: any[]) => prev.filter((ev) => ev.id !== id))
       
       const res = await fetch(`/api/events?id=${id}`, { method: "DELETE" })
       if (!res.ok) {
-        // Revert if failed
+        setLocalEvents(previousEvents) // Revert
         alert("Failed to delete event.")
+      } else {
         router.refresh()
       }
     } catch (error) {
@@ -94,13 +96,15 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
   const handleDeletePastEvent = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this past event?")) return
     try {
-      // Optimistically remove from UI
+      // Optimistically remove from UI, but save old state to revert if failed
+      const previousEvents = [...localPastEvents]
       setLocalPastEvents((prev: any[]) => prev.filter((ev) => ev.id !== id))
 
       const res = await fetch(`/api/past-events?id=${id}`, { method: "DELETE" })
       if (!res.ok) {
-        // Revert if failed
+        setLocalPastEvents(previousEvents) // Revert
         alert("Failed to delete past event.")
+      } else {
         router.refresh()
       }
     } catch (error) {
@@ -154,21 +158,44 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
                     <label className="text-sm font-medium">Cover Image URL (Optional)</label>
                     <input type="url" className="w-full p-2 border rounded bg-background" placeholder="https://images.unsplash.com/..." value={eventForm.image_url} onChange={e => setEventForm({...eventForm, image_url: e.target.value})} />
                   </div>
+                  
+                  {/* BEAUTIFUL DATE POPUP */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Date</label>
-                    <input required type="date" className="w-full p-2 border rounded bg-background" value={eventForm.date} onChange={e => setEventForm({...eventForm, date: e.target.value})} />
+                    <div 
+                      className="relative flex items-center border rounded-md bg-background focus-within:ring-2 focus-within:ring-ring cursor-pointer overflow-hidden group"
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input');
+                        if (input && 'showPicker' in input) { try { input.showPicker(); } catch (err) {} }
+                      }}
+                    >
+                      <Calendar className="ml-3 h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+                      <input required type="date" className="w-full p-2 pl-3 bg-transparent outline-none cursor-pointer appearance-none" style={{ colorScheme: 'dark' }} value={eventForm.date} onChange={e => setEventForm({...eventForm, date: e.target.value})} />
+                    </div>
                   </div>
+
+                  {/* BEAUTIFUL TIME POPUP */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Time</label>
-                    <input required type="time" className="w-full p-2 border rounded bg-background" value={eventForm.time} onChange={e => setEventForm({...eventForm, time: e.target.value})} />
+                    <div 
+                      className="relative flex items-center border rounded-md bg-background focus-within:ring-2 focus-within:ring-ring cursor-pointer overflow-hidden group"
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input');
+                        if (input && 'showPicker' in input) { try { input.showPicker(); } catch (err) {} }
+                      }}
+                    >
+                      <Clock className="ml-3 h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+                      <input required type="time" className="w-full p-2 pl-3 bg-transparent outline-none cursor-pointer appearance-none" style={{ colorScheme: 'dark' }} value={eventForm.time} onChange={e => setEventForm({...eventForm, time: e.target.value})} />
+                    </div>
                   </div>
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Location</label>
                     <input required type="text" className="w-full p-2 border rounded bg-background" value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Type</label>
-                    <select className="w-full p-2 border rounded bg-background" value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value})}>
+                    <select className="w-full p-2 border rounded bg-background cursor-pointer" value={eventForm.type} onChange={e => setEventForm({...eventForm, type: e.target.value})}>
                       <option>Regular</option><option>Special</option><option>Workshop</option><option>Outreach</option>
                     </select>
                   </div>
@@ -193,7 +220,6 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
                     </div>
                   </div>
                   
-                  {/* Delete Button — part of flex row, aligned to top */}
                   <Button 
                     variant="destructive" 
                     size="icon" 
@@ -231,10 +257,22 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
                   <label className="text-sm font-medium">Description</label>
                   <textarea required className="w-full p-2 border rounded bg-background" value={pastEventForm.description} onChange={e => setPastEventForm({...pastEventForm, description: e.target.value})} />
                 </div>
+
+                {/* BEAUTIFUL DATE POPUP */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Date</label>
-                  <input required type="date" className="w-full p-2 border rounded bg-background" value={pastEventForm.date} onChange={e => setPastEventForm({...pastEventForm, date: e.target.value})} />
+                  <div 
+                    className="relative flex items-center border rounded-md bg-background focus-within:ring-2 focus-within:ring-ring cursor-pointer overflow-hidden group"
+                    onClick={(e) => {
+                      const input = e.currentTarget.querySelector('input');
+                      if (input && 'showPicker' in input) { try { input.showPicker(); } catch (err) {} }
+                    }}
+                  >
+                    <Calendar className="ml-3 h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+                    <input required type="date" className="w-full p-2 pl-3 bg-transparent outline-none cursor-pointer appearance-none" style={{ colorScheme: 'dark' }} value={pastEventForm.date} onChange={e => setPastEventForm({...pastEventForm, date: e.target.value})} />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Image URL (Optional)</label>
                   <input type="url" className="w-full p-2 border rounded bg-background" placeholder="https://unsplash.com/..." value={pastEventForm.image_url} onChange={e => setPastEventForm({...pastEventForm, image_url: e.target.value})} />
@@ -265,7 +303,6 @@ export function AdminClient({ initialMembers, initialEvents, initialPastEvents }
                     )}
                   </div>
 
-                  {/* Delete Button — part of flex row, aligned to top */}
                   <Button 
                     variant="destructive" 
                     size="icon" 

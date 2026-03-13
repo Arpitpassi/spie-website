@@ -13,7 +13,7 @@ export default async function AdminPage() {
   }
 
   // Fetch all required data
-  const[membersRes, eventsRes, pastEventsRes] = await Promise.all([
+  const [membersRes, eventsRes, pastEventsRes] = await Promise.all([
     supabase.from("members").select("*").order("created_at", { ascending: false }),
     supabase.from("events").select("*"),
     supabase.from("past_events").select("*").order("date", { ascending: false })
@@ -21,7 +21,7 @@ export default async function AdminPage() {
 
   // AUTO-CLEANUP LOGIC: Remove expired events using IST time
   const now = new Date()
-  const activeEvents: any[] =[]
+  const activeEvents: any[] = []
   const expiredIds: string[] =[]
 
   eventsRes.data?.forEach((ev: any) => {
@@ -33,9 +33,26 @@ export default async function AdminPage() {
     }
   })
 
-  // Delete expired events from database silently in the background
+  // Delete expired events from database and storage bucket silently in the background
   if (expiredIds.length > 0) {
+    const { data: expiredEvents } = await supabase.from("events").select("image_url").in("id", expiredIds)
+    
     await supabase.from("events").delete().in("id", expiredIds)
+
+    if (expiredEvents) {
+      for (const ev of expiredEvents) {
+        if (ev.image_url && ev.image_url.includes('/storage/v1/object/public/')) {
+          try {
+            const parts = ev.image_url.split('/storage/v1/object/public/')[1].split('/')
+            const bucket = parts[0]
+            const filePath = parts.slice(1).join('/')
+            await supabase.storage.from(bucket).remove([filePath])
+          } catch (err) {
+            console.error("Auto-cleanup storage deletion failed:", err)
+          }
+        }
+      }
+    }
   }
 
   // Sort remaining active events
