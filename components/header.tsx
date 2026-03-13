@@ -10,7 +10,7 @@ import { useState } from "react"
 import Image from "next/image"
 import logo from "./image.png"
 
-const navigation = [
+const navigation =[
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Initiatives", href: "/initiatives" },
@@ -61,27 +61,19 @@ export function Header() {
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-72 pt-16">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div className="mb-6 px-4 pt-2">
-                <Image
-                  src={logo}
-                  alt="SPIE Student Chapter NIT Goa"
-                  width={140}
-                  height={48}
-                  className="h-12 w-auto object-contain rounded-sm"
-                />
-              </div>
-              <nav className="flex flex-col gap-2">
+              
+              <nav className="flex flex-col gap-6">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "rounded-lg px-4 py-3 text-base font-medium transition-colors hover:bg-muted",
+                      "text-center text-lg font-medium transition-colors",
                       pathname === item.href
-                        ? "bg-muted text-primary"
+                        ? "text-primary"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
