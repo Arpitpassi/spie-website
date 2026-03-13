@@ -43,13 +43,11 @@ export function Header() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : ""
     return () => { document.body.style.overflow = "" }
   }, [open])
 
-  // Close on route change
   useEffect(() => {
     setOpen(false)
   }, [pathname])
@@ -137,7 +135,7 @@ export function Header() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "group flex items-center justify-between rounded-xl px-3 py-3.5 text-base font-medium transition-all duration-300",
+                  "flex items-center justify-center rounded-xl px-3 py-3.5 text-base font-medium transition-all duration-300",
                   "hover:bg-muted",
                   pathname === item.href
                     ? "text-primary"
@@ -151,20 +149,12 @@ export function Header() {
                   transitionProperty: "opacity, transform, color, background-color",
                 }}
               >
-                <span>{item.name}</span>
-                <span
-                  className={cn(
-                    "text-muted-foreground/40 transition-transform duration-200 group-hover:translate-x-0.5",
-                    pathname === item.href && "text-primary/50"
-                  )}
-                >
-                  →
-                </span>
+                {item.name}
               </Link>
             ))}
           </nav>
 
-          {/* Subtle divider + footer */}
+          {/* Footer */}
           <div
             className={cn(
               "absolute bottom-10 left-7 right-7 border-t border-border/40 pt-6",
@@ -173,7 +163,7 @@ export function Header() {
             )}
             style={{ transitionDelay: open ? "420ms" : "0ms" }}
           >
-            <p className="text-xs text-muted-foreground/50 tracking-wide">
+            <p className="text-xs text-center text-muted-foreground/50 tracking-wide">
               SPIE Student Chapter · NIT Goa
             </p>
           </div>
