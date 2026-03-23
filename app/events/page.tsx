@@ -6,8 +6,64 @@ import { Footer } from "@/components/footer"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar, ExternalLink } from "lucide-react"
 
+function PdfViewer({ url }: { url: string }) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    let objectUrl: string
+    const load = async () => {
+      try {
+        const res = await fetch(url)
+        if (!res.ok) throw new Error("Failed to fetch PDF")
+        const blob = await res.blob()
+        objectUrl = URL.createObjectURL(blob)
+        setBlobUrl(objectUrl)
+      } catch {
+        setError(true)
+      }
+    }
+    load()
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
+  }, [url])
+
+  if (error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground">
+        <p>Could not load PDF inline.</p>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          Open in new tab <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      </div>
+    )
+  }
+
+  if (!blobUrl) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+        Loading PDF...
+      </div>
+    )
+  }
+
+  return (
+    <iframe
+      src={blobUrl}
+      className="h-full w-full bg-white"
+      title="PDF Viewer"
+    />
+  )
+}
+
 export default function EventsPage() {
-  const[pastEvents, setPastEvents] = useState<any[]>([])
+  const [pastEvents, setPastEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,7 +82,7 @@ export default function EventsPage() {
     }
 
     fetchPastEvents()
-  },[])
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -52,8 +108,7 @@ export default function EventsPage() {
             ) : (
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {pastEvents.map((event) => {
-                  
-                  // The Card UI
+
                   const CardContent = (
                     <article className="group h-full flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg cursor-pointer">
                       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
@@ -87,31 +142,24 @@ export default function EventsPage() {
                         </div>
                       </div>
                     </article>
-                  );
+                  )
 
                   return (
                     <Dialog key={event.id}>
                       <DialogTrigger asChild>
                         <div className="h-full">{CardContent}</div>
                       </DialogTrigger>
-                      
-                      {/* Dynamic Dialog Size: PDF = Large, Image = Standard */}
+
                       <DialogContent className={event.pdf_url ? "max-w-5xl h-[85vh] flex flex-col bg-card border-border p-4 sm:p-6" : "max-w-2xl bg-card border-border"}>
                         <DialogHeader>
                           <DialogTitle className="text-xl pr-6">{event.title}</DialogTitle>
                         </DialogHeader>
-                        
+
                         {event.pdf_url ? (
-                          // PDF View Layout
                           <div className="flex-1 mt-4 overflow-hidden rounded-lg border border-border">
-                            <iframe 
-                              src={event.pdf_url} 
-                              className="w-full h-full bg-white" 
-                              title={event.title} 
-                            />
+                            <PdfViewer url={event.pdf_url} />
                           </div>
                         ) : (
-                          // Standard Image/Text Layout
                           <div className="mt-4">
                             {event.image_url && (
                               <div className="aspect-[16/9] overflow-hidden rounded-lg bg-muted">

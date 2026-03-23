@@ -1,54 +1,49 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Users, Telescope, Lightbulb, Heart } from "lucide-react"
+import { Users, Telescope, Bot } from "lucide-react"
+import img1 from "./img1.jpeg"
+import img2 from "./img2.jpeg"
+import img3 from "./img3.jpeg"
+import Image from "next/image"
 
-const initiatives =[
+const initiatives = [
   {
-    title: "Women in SPIE",
-    description: "Empowering women in optics and photonics through mentorship, networking, and professional development opportunities. We organize workshops, panel discussions, and events to support and celebrate women in STEM.",
+    title: "Women in STEM",
+    description: "An outreach workshop introducing young girls to science and technology at a formative stage. Through hands-on activities spanning optics, physics, chemistry, and robotics — diffraction glasses, coloured shadows, magnetic fields, IR sensors, slime making, and a line-following robot — students explored STEM in an engaging, approachable way, guided by SPIE members throughout.",
     icon: Users,
     color: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-    features:[
-      "Mentorship programs for female students",
-      "Career guidance and networking events",
-      "Workshops on leadership and professional skills",
-      "Celebration of women's achievements in optics",
+    image: img1,
+    features: [
+      "Interactive experiments in optics and physics",
+      "Chemistry and robotics demonstrations",
+      "Encouraging curiosity and confidence in STEM",
+      "Fostering inclusivity in scientific exploration",
+    ],
+  },
+  {
+    title: "Robotics Workshop",
+    description: "A hands-on session focused on how Arduino works and communicates, giving students a solid conceptual foundation before moving to practical work. Students collaborated in groups to build four mini-projects, culminating in a fully functional object-avoidance robot — each team assembling and demonstrating their prototypes from scratch.",
+    icon: Bot,
+    color: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+    image: img2,
+    features: [
+      "Conceptual introduction to Arduino and microcontrollers",
+      "Group-based hands-on project building",
+      "Progressive mini-projects leading to a final robot",
+      "Student-assembled and demonstrated prototypes",
     ],
   },
   {
     title: "Astronomy Wing",
-    description: "Exploring the cosmos through telescope observations, astrophotography, and educational outreach. Our astronomy wing brings the wonders of the universe closer to students and the community.",
+    description: "An observational session that demonstrated the dynamic, ever-changing nature of planetary motion. Participants engaged in discussions on telescopes, space exploration, and planetary science, with conversations extending to the possibility of extraterrestrial life. The session blended live observation with scientific dialogue, fostering curiosity and interest in space science.",
     icon: Telescope,
-    color: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-    features:[
-      "Night sky observation sessions",
-      "Astrophotography workshops",
-      "Planetarium visits and field trips",
-      "Educational talks on celestial phenomena",
-    ],
-  },
-  {
-    title: "Outreach Programs",
-    description: "Bringing optics and photonics education to schools and communities. We conduct interactive demonstrations and hands-on experiments to inspire the next generation of scientists.",
-    icon: Lightbulb,
     color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    features:[
-      "School visits and science demos",
-      "Science fair participation",
-      "Community awareness programs",
-      "STEM education workshops",
-    ],
-  },
-  {
-    title: "Social Impact",
-    description: "Using our technical expertise to create positive social impact. From assistive technologies to environmental monitoring, we apply optics for the greater good.",
-    icon: Heart,
-    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    features:[
-      "Assistive technology projects",
-      "Environmental monitoring initiatives",
-      "Healthcare applications",
-      "Sustainable technology research",
+    image: img3,
+    features: [
+      "Live sky observation sessions",
+      "Discussions on telescopes and space exploration",
+      "Planetary science and motion demonstrations",
+      "Conversations on astrobiology and extraterrestrial life",
     ],
   },
 ]
@@ -100,16 +95,12 @@ export default function InitiativesPage() {
                       </ul>
                     </div>
                     <div className="flex-1">
-                      <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                        <img
-                          src={`https://images.unsplash.com/photo-${
-                            index === 0 ? "1573164713714-d95e436ab8d6"
-                            : index === 1 ? "1419242902214-272b3f66ee7a"
-                            : index === 2 ? "1427504494785-3a9ca7044f45"
-                            : "1559027615-cd4628902d4a"
-                          }?w=800&q=80`}
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                        <Image
+                          src={initiative.image}
                           alt={initiative.title}
-                          className="h-full w-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                     </div>
